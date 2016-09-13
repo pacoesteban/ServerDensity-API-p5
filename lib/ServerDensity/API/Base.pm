@@ -1,20 +1,23 @@
-package ServerDensity::API;
+package ServerDensity::API::Base;
 use 5.008001;
 use strict;
 use warnings;
 use Moose;
-extends 'ServerDensity::API::Base';
-
-use ServerDensity::API::Device;
+use LWP::UserAgent;
 
 our $VERSION = "0.01";
 
-has device => (
-    is      => 'rw',
-    isa     => 'ServerDensity::API::Device',
+has _token => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 1
+);
+
+has _ua => (
+    is      => 'ro',
+    isa     => 'LWP::UserAgent',
     default => sub {
-        my $self = shift;
-        return ServerDensity::API::Device->new( _token => $self->_token );
+        LWP::UserAgent->new;
     },
 );
 
@@ -28,17 +31,12 @@ __END__
 
 =head1 NAME
 
-ServerDensity::API - Perl representation of the ServerDensity API.
+ServerDensity::API::Base - Perl representation of the ServerDensity API. Base Class.
 L<http://serverdensity.com>
 
 =head1 SYNOPSIS
 
-    use ServerDensity::API;
-
-    my $api = ServerDensity::API->new( _token => 'mytoken' );
-    my $device = $api->device->new( name => 'Llama' );
-
-    ...
+See L<ServerDensity::API>
 
 =head1 DESCRIPTION
 
@@ -57,4 +55,5 @@ it under the same terms as Perl itself.
 Paco Esteban E<lt>paco@onna.beE<gt>
 
 =cut
+
 
