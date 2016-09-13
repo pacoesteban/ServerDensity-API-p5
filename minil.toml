@@ -1,0 +1,6 @@
+name = "ServerDensity-API"
+# badges = ["travis"]
+authority="cpan:PACOEB"
+
+module_maker="ModuleBuildTiny"
+
