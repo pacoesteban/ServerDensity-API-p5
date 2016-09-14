@@ -21,6 +21,12 @@ has _ua => (
     },
 );
 
+has base_url => (
+    is        => 'ro',
+    isa     => 'Str',
+    default => 'https://api.serverdensity.io'
+);
+
 no Moose;
 __PACKAGE__->meta->make_immutable;
 

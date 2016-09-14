@@ -1,4 +1,4 @@
-package ServerDensity::API::Device;
+package ServerDensity::API::Service;
 use 5.008001;
 use strict;
 use warnings;
@@ -16,11 +16,6 @@ with 'ServerDensity::API::BaseRole',
   'ServerDensity::API::DateRole',
   'ServerDensity::API::DeleteRole',
   'ServerDensity::API::TagRole';
-
-has agentKey => (
-    is  => 'rw',
-    isa => 'Str',
-);
 
 around BUILDARGS => sub {
     my ( $orig, $class, %args ) = @_;
@@ -45,7 +40,7 @@ __END__
 
 =head1 NAME
 
-ServerDensity::API::Base - Perl representation of the ServerDensity API. Device Class.
+ServerDensity::API::Service - Perl representation of the ServerDensity API. Service Class.
 L<http://serverdensity.com>
 
 =head1 SYNOPSIS
@@ -69,4 +64,5 @@ it under the same terms as Perl itself.
 Paco Esteban E<lt>paco@onna.beE<gt>
 
 =cut
+
 
