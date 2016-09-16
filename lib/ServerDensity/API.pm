@@ -21,40 +21,45 @@ has device => (
     },
 );
 
-sub list_devices {
-    my $self = shift;
-    my $url  = $self->base_url . '/inventory/devices?token=' . $self->_token;
-    my $res  = $self->_ua->get($url);
-    if ( $res->is_success ) {
-        my @devices;
-        foreach my $d ( @{ decode_json $res->decoded_content } ) {
-            push @devices,
-              ServerDensity::API::Device->new(
-                _token => $self->_token,
-                %{$d}
-              );
-        }
-        return \@devices;
-    }
-    return $res->code;
-}
+has service => (
+    is      => 'rw',
+    isa     => 'ServerDensity::API::Service',
+    default => sub {
+        my $self = shift;
+        return ServerDensity::API::Service->new( _token => $self->_token );
+    },
+);
 
-sub list_services {
-    my $self = shift;
-    my $url  = $self->base_url . '/inventory/services?token=' . $self->_token;
-    my $res  = $self->_ua->get($url);
-    if ( $res->is_success ) {
-        my @services;
-        foreach my $d ( @{ decode_json $res->decoded_content } ) {
-            push @services,
-              ServerDensity::API::Service->new(
-                _token => $self->_token,
-                %{$d}
-              );
+# list_devices and list_services are basically the same
+# so a bit of meta-programming won't hurt.
+foreach my $method (qw/devices services/) {
+    __PACKAGE__->meta->add_method(
+        "list_" . $method,
+        sub {
+            my $self = shift;
+            my $url
+              = $self->base_url
+              . '/inventory/'
+              . $method
+              . '?token='
+              . $self->_token;
+            my $res = $self->_ua->get($url);
+            my ($singular_method) = $method =~ m/(.*)s$/;
+            my $class = "ServerDensity::API::" . ucfirst $singular_method;
+            if ( $res->is_success ) {
+                my @i;
+                foreach my $d ( @{ decode_json $res->decoded_content } ) {
+                    push @i,
+                      $class->new(
+                        _token => $self->_token,
+                        %{$d}
+                      );
+                }
+                return \@i;
+            }
+            return $res->code;
         }
-        return \@services;
-    }
-    return $res->code;
+    );
 }
 
 no Moose;
@@ -75,8 +80,12 @@ L<http://serverdensity.com>
     use ServerDensity::API;
 
     my $api = ServerDensity::API->new( _token => 'mytoken' );
-    my $devices = $api->device->list;
-    my $device = $api->device->create( name => 'Llama' );
+    my $devices = $api->list_devices; # returns an array of ServerDensity::API::Device
+    my $devices = $api->list_services; # returns an array of ServerDensity::API::Services
+
+    my $device = $api->device->new( name => 'Llama' ); # new device object
+    $device->create; # actually queries the api for creation.
+    # check ServerDensity::API::Device for more info.
 
     ...
 
@@ -84,6 +93,35 @@ L<http://serverdensity.com>
 
 ServerDensity::API is a module to interact with ServerDensity monitoring service.
 It works with version 2.0 of the API.
+
+=head1 ATTRIBUTES
+
+=head2 _token
+
+This is mandatory. You need to provide a valid token to operate with the rest of attributes and methods.
+You can generate one on ServerDensity web UI. For now, this module does not provide the ability to generate new tokens from credentials.
+
+=head2 device
+
+Returns L<ServerDensity::API::Device> object you can act on.
+
+=head2 service
+
+Returns L<ServerDensity::API::Service> object you can act on.
+
+=head1 METHODS
+
+=head2 new
+
+Main constructor. you shoud only use this one, since you can access all objects from here.
+
+=head2 list_devices
+
+Returns an array of L<ServerDensity::API::Device>
+
+=head2 list_services
+
+Returns an array of L<ServerDensity::API::Service>
 
 =head1 LICENSE
 

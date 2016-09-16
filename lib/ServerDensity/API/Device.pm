@@ -17,9 +17,30 @@ with 'ServerDensity::API::BaseRole',
   'ServerDensity::API::DeleteRole',
   'ServerDensity::API::TagRole';
 
-has agentKey => (
+has [qw(agentKey agentVersion hostname ip provider userId cId imageId status)]
+  => (
     is  => 'rw',
     isa => 'Str',
+  );
+
+has [qw(installedRAM swapSpace cpuCores)] => (
+    is  => 'rw',
+    isa => 'Int',
+);
+
+has [qw(cloud isMonitored isNew)] => (
+    is  => 'rw',
+    isa => 'Bool',
+);
+
+has [qw(location lastPayloadAt os )] => (
+    is  => 'rw',
+    isa => 'Maybe[HashRef]',
+);
+
+has [qw(pluginsEnabled privateIPs publicIPs)] => (
+    is  => 'rw',
+    isa => 'Maybe[ArrayRef]',
 );
 
 around BUILDARGS => sub {
@@ -56,6 +77,25 @@ See L<ServerDensity::API>
 
 ServerDensity::API is a module to interact with ServerDensity monitoring service.
 It works with version 2.0 of the API.
+
+=head1 ATTRIBUTES
+
+=head2 _token
+
+This is mandatory. the main class ensures this is passed to this child class.
+
+=head2 _id name type  ...
+
+All attributes as described on the API docs are presented on this object.
+
+=head1 METHODS
+
+=head2 new
+
+Constructor method. Not ment to be used alone. You should instantiate it from main class.
+
+=head2 create delete update
+
 
 =head1 LICENSE
 
